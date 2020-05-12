@@ -28,7 +28,7 @@ var controller = {
             user.age = params.age;
             user.gender = params.gender;
             user.created_at = moment().format();
-        
+
             //comprobar si el usuario existe
             User.findOne({
                 name: user.name
@@ -42,24 +42,24 @@ var controller = {
                 if (!issetUser) {
                     //guardarlo
                     user.save((err, userStored) => {
-                        if(err) {
+                        if (err) {
                             return res.status(500).send({
                                 message: "Error al guardar el usuario"
                             });
                         }
 
-                        if(!userStored){
+                        if (!userStored) {
                             return res.status(400).send({
-                                message:"El usuario no se guardo"
+                                message: "El usuario no se guardo"
                             });
                         }
                         //respuesta
                         return res.status(200).send({
-                            message:"success",
-                            user:userStored
+                            message: "success",
+                            user: userStored
                         });
                     });
-            
+
                 } else {
                     return res.status(200).send({
                         message: "El usuario ya esta registrado",
@@ -72,6 +72,54 @@ var controller = {
                 message: "Validación de los datos del usuario incorrecta",
             });
         }
+    },
+
+    getUsers: function (req, res) {
+        User.find().exec((err, users) => {
+            if (err || !users) {
+                return res.status(404).send({
+                    status: "fail",
+                    message: "No hay usuarios"
+                });
+            }
+            return res.status(200).send({
+                status: "success",
+                users
+            });
+        });
+    },
+
+    getUser: function (req, res) {
+        var userId = req.params.userId;
+
+        User.findById(userId).exec((err, user) => {
+            if (err || !user) {
+                return res.status(404).send({
+                    status: "fail",
+                    message: "No hay usuario"
+                });
+            }
+            return res.status(200).send({
+                status: "success",
+                user
+            });
+        });
+    },
+
+    delete: function (req, res) {
+        var userId = req.params.userId;
+        User.findByIdAndRemove(userId).exec((err) => {
+            if (err) {
+                return res.status(404).send({
+                    status: "fail",
+                    message: "error al borrar"
+                });
+            }
+            res.status(200).send({
+                status: "success",
+                message: "Delete success"
+            })
+        });
     },
 };
 
