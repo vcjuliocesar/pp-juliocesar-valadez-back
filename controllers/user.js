@@ -18,7 +18,7 @@ var controller = {
         //validar datos
 
         if (validate.validate_data(params)) {
-    
+
             //crear objeto
             var user = new User();
 
@@ -72,12 +72,13 @@ var controller = {
     },
 
     getUsers: function (req, res) {
-        var name = req.params.name;
+        var name = common.capital_letter(req.params.name);
         var query = User.find();
         if (name) {
             query = User.find({
                 name: {
-                    $regex: name
+                    $regex: name,
+                    $options: "$i"
                 }
             });
 
@@ -86,7 +87,7 @@ var controller = {
             if (err || !users) {
                 return res.status(404).send({
                     status: "fail",
-                    message: "something was wrong",
+                    message: "something went wrong",
                     error: err
                 });
             }
@@ -96,24 +97,6 @@ var controller = {
             });
         });
 
-    },
-
-    getUser: function (req, res) {
-        var userId = req.params.userId;
-
-        User.findById(userId).exec((err, user) => {
-            if (err || !user) {
-                return res.status(404).send({
-                    status: "fail",
-                    message: "something was wrong",
-                    error: err
-                });
-            }
-            return res.status(200).send({
-                status: "success",
-                user
-            });
-        });
     },
 
     getNamePhoneUsers: function (req, res) {
@@ -136,7 +119,7 @@ var controller = {
             if (error || !users) {
                 return res.status(500).send({
                     status: "fail",
-                    message: "something was wrong"
+                    message: "something went wrong"
                 });
             }
 
@@ -153,7 +136,7 @@ var controller = {
             if (err || !user) {
                 return res.status(404).send({
                     status: "fail",
-                    message: "something was wrong",
+                    message: "something went wrong",
                     error: err
                 });
             }

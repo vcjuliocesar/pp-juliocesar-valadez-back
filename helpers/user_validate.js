@@ -15,7 +15,7 @@ var validate = {
                 validate_gender = !validator.isEmpty(params.gender) && validator.isIn(params.gender, ["male", "female"]);
         } catch (err) {
             return res.status(500).send({
-                message: "something was wrong"
+                message: "something went wrong"
             });
         }
 
