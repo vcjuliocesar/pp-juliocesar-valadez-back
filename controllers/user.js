@@ -20,8 +20,7 @@ var controller = {
                 validate_gender = !validator.isEmpty(params.gender) && validator.isIn(params.gender, ["male", "female"]);
         } catch (err) {
             return res.status(500).send({
-                message: "algo salio mal",
-                err
+                message: "algo salio mal"
             });
         }
 
@@ -29,13 +28,13 @@ var controller = {
         if (validate_name && validate_phone && validate_age && validate_gender) {
             //crear objeto
             var user = new User();
-
+            var day = new Date();
             //asignar valores al objeto
             user.name = params.name.toLowerCase();
             user.phone = params.phone;
             user.age = params.age;
             user.gender = params.gender.toLowerCase();
-            user.created_at = moment().format();
+            user.created_at = day;
 
             //comprobar si el usuario existe
             User.findOne({
@@ -118,6 +117,25 @@ var controller = {
                 user
             });
         });
+    },
+
+    getNamePhoneUsers: function(req,res){
+        var today = new Date();
+        var d = new Date();
+        d.setTime(d.getTime() - (4 * 24*60*60*1000));
+        User.find({gender:'male',age:{$gt:18},created_at:{ $gte: d,$lt: today}},{name:1,phone:1}).exec((error,users) => {
+            if(error || !users){
+                return res.status(500).send({
+                    status:"fail",
+                    message:"something was wrong"
+                });
+            }
+
+            return res.status(200).send({
+                status:'success',
+                users
+            });
+        });    
     },
 
     delete: function (req, res) {
