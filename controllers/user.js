@@ -17,10 +17,11 @@ var controller = {
                     gt: 17,
                     lt: 99
                 }),
-                validate_gender = !validator.isEmpty(params.gender) && validator.isIn(params.gender.toLowerCase(), ["male", "female"]);
+                validate_gender = !validator.isEmpty(params.gender) && validator.isIn(params.gender, ["male", "female"]);
         } catch (err) {
             return res.status(500).send({
                 message: "algo salio mal",
+                err
             });
         }
 
@@ -30,15 +31,16 @@ var controller = {
             var user = new User();
 
             //asignar valores al objeto
-            user.name = params.name;
+            user.name = params.name.toLowerCase();
             user.phone = params.phone;
             user.age = params.age;
-            user.gender = params.gender;
+            user.gender = params.gender.toLowerCase();
             user.created_at = moment().format();
 
             //comprobar si el usuario existe
             User.findOne({
-                name: user.name
+                name: user.name,
+                phone: user.phone
             }, (err, issetUser) => {
                 if (err) {
                     return res.status(500).send({
@@ -49,15 +51,9 @@ var controller = {
                 if (!issetUser) {
                     //guardarlo
                     user.save((err, userStored) => {
-                        if (err) {
+                        if (err || !userStored) {
                             return res.status(500).send({
                                 message: "Error al guardar el usuario"
-                            });
-                        }
-
-                        if (!userStored) {
-                            return res.status(400).send({
-                                message: "El usuario no se guardo"
                             });
                         }
                         //respuesta
@@ -82,7 +78,17 @@ var controller = {
     },
 
     getUsers: function (req, res) {
-        User.find().exec((err, users) => {
+        var name = req.params.name;
+        var query = User.find();
+        if (name) {
+            query = User.find({
+                name: {
+                    $regex: name
+                }
+            });
+
+        }
+        query.exec((err, users) => {
             if (err || !users) {
                 return res.status(404).send({
                     status: "fail",
@@ -94,6 +100,7 @@ var controller = {
                 users
             });
         });
+
     },
 
     getUser: function (req, res) {
@@ -115,7 +122,7 @@ var controller = {
 
     delete: function (req, res) {
         var userId = req.params.userId;
-        User.findByIdAndRemove(userId).exec((err,user) => {
+        User.findByIdAndRemove(userId).exec((err, user) => {
             if (err || !user) {
                 return res.status(404).send({
                     status: "fail",
@@ -125,7 +132,7 @@ var controller = {
             res.status(200).send({
                 status: "success",
                 message: "Delete success"
-            })
+            });
         });
     },
 };
