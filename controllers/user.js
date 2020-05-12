@@ -1,7 +1,7 @@
 'use strict'
 
 var validator = require('validator');
-var moment = require('moment');
+
 var User = require('../models/user');
 
 var controller = {
@@ -20,7 +20,7 @@ var controller = {
                 validate_gender = !validator.isEmpty(params.gender) && validator.isIn(params.gender, ["male", "female"]);
         } catch (err) {
             return res.status(500).send({
-                message: "algo salio mal"
+                message: "something was wrong"
             });
         }
 
@@ -43,7 +43,8 @@ var controller = {
             }, (err, issetUser) => {
                 if (err) {
                     return res.status(500).send({
-                        message: "Error al comprobar duplicidad de usuario",
+                        message: "Woops, something went wrong",
+                        error:err
                     });
                 }
 
@@ -52,7 +53,8 @@ var controller = {
                     user.save((err, userStored) => {
                         if (err || !userStored) {
                             return res.status(500).send({
-                                message: "Error al guardar el usuario"
+                                message: "Woops, something went wrong",
+                                error:err
                             });
                         }
                         //respuesta
@@ -64,14 +66,14 @@ var controller = {
 
                 } else {
                     return res.status(200).send({
-                        message: "El usuario ya esta registrado",
+                        message: "The user is alredy registered",
                     });
                 }
             });
 
         } else {
             return res.status(200).send({
-                message: "Validación de los datos del usuario incorrecta",
+                message: "Woops, something went wrong,user validate is incorrect",
             });
         }
     },
@@ -91,7 +93,8 @@ var controller = {
             if (err || !users) {
                 return res.status(404).send({
                     status: "fail",
-                    message: "No hay usuarios"
+                    message: "something was wrong",
+                    error:err
                 });
             }
             return res.status(200).send({
@@ -109,7 +112,8 @@ var controller = {
             if (err || !user) {
                 return res.status(404).send({
                     status: "fail",
-                    message: "No hay usuario"
+                    message: "something was wrong",
+                    error:err
                 });
             }
             return res.status(200).send({
@@ -144,7 +148,8 @@ var controller = {
             if (err || !user) {
                 return res.status(404).send({
                     status: "fail",
-                    message: "error al borrar"
+                    message: "something was wrong",
+                    error:err
                 });
             }
             res.status(200).send({
