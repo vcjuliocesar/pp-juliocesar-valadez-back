@@ -10,13 +10,20 @@ var controller = {
         //recoger parametros de la peticion
         var params = req.body;
         //validar datos
-        var validate_name = !validator.isEmpty(params.name),
-            validate_phone = !validator.isEmpty(params.phone) && validator.isMobilePhone(params.phone, ['es-MX']),
-            validate_age = !validator.isEmpty(params.age) && validator.isInt(params.age, {
-                gt: 17,
-                lt: 99
-            }),
-            validate_gender = !validator.isEmpty(params.gender) && validator.isIn(params.gender.toLowerCase(), ["male", "female"]);
+        try {
+            var validate_name = !validator.isEmpty(params.name),
+                validate_phone = !validator.isEmpty(params.phone) && validator.isMobilePhone(params.phone, ['es-MX']),
+                validate_age = !validator.isEmpty(params.age) && validator.isInt(params.age, {
+                    gt: 17,
+                    lt: 99
+                }),
+                validate_gender = !validator.isEmpty(params.gender) && validator.isIn(params.gender.toLowerCase(), ["male", "female"]);
+        } catch (err) {
+            return res.status(500).send({
+                message: "algo salio mal",
+            });
+        }
+
 
         if (validate_name && validate_phone && validate_age && validate_gender) {
             //crear objeto
@@ -108,8 +115,8 @@ var controller = {
 
     delete: function (req, res) {
         var userId = req.params.userId;
-        User.findByIdAndRemove(userId).exec((err) => {
-            if (err) {
+        User.findByIdAndRemove(userId).exec((err,user) => {
+            if (err || !user) {
                 return res.status(404).send({
                     status: "fail",
                     message: "error al borrar"
