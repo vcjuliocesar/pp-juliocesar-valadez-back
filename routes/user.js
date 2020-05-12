@@ -5,9 +5,6 @@ var express = require('express');
 var UserController = require('../controllers/user');
 
 var router = express.Router();
-//Rutas de prueba borralas
-router.get('/probando',UserController.probando);
-router.post('/testeando',UserController.testeando);
 
 //Rutas de usuario
 router.post('/register',UserController.save);
