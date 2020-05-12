@@ -1,36 +1,29 @@
 'use strict'
 
-var validator = require('validator');
-
+//var validator = require('validator');
+var validate = require('../helpers/user_validate');
+var common = require('../helpers/common');
 var User = require('../models/user');
+
 
 var controller = {
 
     save: function (req, res) {
+        var day = new Date();
+
         //recoger parametros de la peticion
+
         var params = req.body;
+
         //validar datos
-        try {
-            var validate_name = !validator.isEmpty(params.name),
-                validate_phone = !validator.isEmpty(params.phone) && validator.isMobilePhone(params.phone, ['es-MX']),
-                validate_age = !validator.isEmpty(params.age) && validator.isInt(params.age, {
-                    gt: 17,
-                    lt: 99
-                }),
-                validate_gender = !validator.isEmpty(params.gender) && validator.isIn(params.gender, ["male", "female"]);
-        } catch (err) {
-            return res.status(500).send({
-                message: "something was wrong"
-            });
-        }
 
-
-        if (validate_name && validate_phone && validate_age && validate_gender) {
+        if (validate.validate_data(params)) {
+    
             //crear objeto
             var user = new User();
-            var day = new Date();
+
             //asignar valores al objeto
-            user.name = params.name.toLowerCase();
+            user.name = common.capital_letter(params.name);
             user.phone = params.phone;
             user.age = params.age;
             user.gender = params.gender.toLowerCase();
@@ -44,7 +37,7 @@ var controller = {
                 if (err) {
                     return res.status(500).send({
                         message: "Woops, something went wrong",
-                        error:err
+                        error: err
                     });
                 }
 
@@ -54,7 +47,7 @@ var controller = {
                         if (err || !userStored) {
                             return res.status(500).send({
                                 message: "Woops, something went wrong",
-                                error:err
+                                error: err
                             });
                         }
                         //respuesta
@@ -94,7 +87,7 @@ var controller = {
                 return res.status(404).send({
                     status: "fail",
                     message: "something was wrong",
-                    error:err
+                    error: err
                 });
             }
             return res.status(200).send({
@@ -113,7 +106,7 @@ var controller = {
                 return res.status(404).send({
                     status: "fail",
                     message: "something was wrong",
-                    error:err
+                    error: err
                 });
             }
             return res.status(200).send({
@@ -123,23 +116,35 @@ var controller = {
         });
     },
 
-    getNamePhoneUsers: function(req,res){
+    getNamePhoneUsers: function (req, res) {
         var today = new Date();
         var d = new Date();
-        d.setTime(d.getTime() - (4 * 24*60*60*1000));
-        User.find({gender:'male',age:{$gt:18},created_at:{ $gte: d,$lt: today}},{name:1,phone:1}).exec((error,users) => {
-            if(error || !users){
+        d.setTime(d.getTime() - (4 * 24 * 60 * 60 * 1000));
+        User.find({
+            gender: 'male',
+            age: {
+                $gt: 18
+            },
+            created_at: {
+                $gte: d,
+                $lt: today
+            }
+        }, {
+            name: 1,
+            phone: 1
+        }).exec((error, users) => {
+            if (error || !users) {
                 return res.status(500).send({
-                    status:"fail",
-                    message:"something was wrong"
+                    status: "fail",
+                    message: "something was wrong"
                 });
             }
 
             return res.status(200).send({
-                status:'success',
+                status: 'success',
                 users
             });
-        });    
+        });
     },
 
     delete: function (req, res) {
@@ -149,7 +154,7 @@ var controller = {
                 return res.status(404).send({
                     status: "fail",
                     message: "something was wrong",
-                    error:err
+                    error: err
                 });
             }
             res.status(200).send({
