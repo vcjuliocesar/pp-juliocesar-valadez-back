@@ -32,7 +32,9 @@ var controller = {
             //comprobar si el usuario existe
             User.findOne({
                 name: user.name,
-                phone: user.phone
+                phone: user.phone,
+                age: user.age,
+                gender: user.gender
             }, (err, issetUser) => {
                 if (err) {
                     return res.status(500).send({
