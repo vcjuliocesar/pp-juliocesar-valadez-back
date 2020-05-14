@@ -72,7 +72,7 @@ var controller = {
     },
 
     getUsers: function (req, res) {
-        var name = common.capital_letter(req.params.name);
+        var name = req.params.name;
         var query = User.find();
         if (name) {
             query = User.find({
